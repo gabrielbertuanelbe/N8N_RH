@@ -1437,45 +1437,6 @@
       ],
       "id": "be02b4fe-53d2-4af3-b48b-1491288983a1",
       "name": "If"
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "leftValue": "",
-                    "rightValue": "",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    },
-                    "id": "aa2821cc-c1f0-4f38-b2ae-aadb98d4d39e"
-                  }
-                ],
-                "combinator": "and"
-              }
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.3,
-      "position": [
-        -1600,
-        -1328
-      ],
-      "id": "37c9931a-b83f-44e3-944b-516de3d9cade",
-      "name": "Switch"
     }
   ],
   "pinData": {},
@@ -1837,17 +1798,7 @@
       "main": [
         [
           {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch": {
-      "main": [
-        [
-          {
+
             "node": "ASSISTENTE RH1",
             "type": "main",
             "index": 0
@@ -1860,7 +1811,6 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f856c3e2-335c-4cc1-81e7-14e2aece9098",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cdf54896ddd4a317382847563e3df43e6ba9ae2db71da5c0e16ea78b9ab4550b"
