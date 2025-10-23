@@ -1383,6 +1383,60 @@
       ],
       "id": "95b0c9c0-7a86-46dd-84bd-ff5e8a3d1841",
       "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1952,
+        -1024
+      ],
+      "id": "7ceccdf0-c145-4d8f-abea-2ff99e7f3d6c",
+      "name": "Create spreadsheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1EqrYgYGEXbqY0D3",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d83d61fd-33f1-4fe4-85b2-30828185baae",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1792,
+        -1136
+      ],
+      "id": "be02b4fe-53d2-4af3-b48b-1491288983a1",
+      "name": "If"
     }
   ],
   "pinData": {},
@@ -1717,13 +1771,46 @@
           }
         ]
       ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "ASSISTENTE RH1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "75c1f876-be29-4c61-9d68-08e28dcaa269",
+  "versionId": "4d661ab3-9360-4966-9320-c4188542cd4d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cdf54896ddd4a317382847563e3df43e6ba9ae2db71da5c0e16ea78b9ab4550b"
