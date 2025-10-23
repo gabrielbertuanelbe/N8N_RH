@@ -1,0 +1,1733 @@
+{
+  "name": "NOVO -  RH IMIC",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -5056,
+        -656
+      ],
+      "id": "53f9be29-55f6-49c3-bf07-2c4aeb189d26",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }} ",
+        "simple": false,
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -4416,
+        -672
+      ],
+      "id": "0298cf67-38e5-4b89-9c51-8f97291d5d96",
+      "name": "Separa e-mails individualmente",
+      "webhookId": "a0571941-a9d0-4652-bdeb-c71d30b76996",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k92J8beLzoVf3dJc",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "readStatus": "unread"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -4848,
+        -656
+      ],
+      "id": "100e7b95-9274-4bdb-b382-3c11d0e6da30",
+      "name": "Pega todos os e-mails",
+      "webhookId": "f4bf7e4a-20d4-4e7f-8d8e-f14f1e2b68ba",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k92J8beLzoVf3dJc",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "70d88311-db8b-45a1-932e-6157237ff39d",
+              "leftValue": "={{ $json.payload.mimeType }}",
+              "rightValue": "multipart/mixed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "bf057ada-00ca-4afe-a822-854ef5d75a52",
+              "leftValue": "={{ $json.payload.mimeType }}",
+              "rightValue": "multipart/related",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4640,
+        -656
+      ],
+      "id": "cefca8f9-0023-444b-a8a4-542f64bcf963",
+      "name": "Verifica se o e-mail tem arquivo"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.From }}",
+        "subject": "=E-mail sem anexo",
+        "emailType": "text",
+        "message": "=Este e-mail é direcionado exclusivamente para recebimento de currículos.\nO e-mail que você enviou com o título {{ $json.Subject }}, não possui nenhum anexo!\nGentileza reenviar a mensagem com o currículo anexado em um dos seguintes formatos: PDF, DOCX, DOC, JPEG, PNG ou JPG.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -4416,
+        -480
+      ],
+      "id": "3c227fea-3116-4b69-923b-52adddd2bae4",
+      "name": "Notifica por falta de arquivo",
+      "webhookId": "a1dde64d-273f-4554-a4d5-ff4a3cc47c7a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k92J8beLzoVf3dJc",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c6197eb-5ae6-432e-ada3-631fbf3e7628",
+              "leftValue": "={{ \n  // deixa passar se for uma extensão conhecida OU MIME compatível\n  (['pdf','doc','docx','jpg','jpeg','png'].includes(($json.ext || '').toLowerCase()))\n  ||\n  (($json.mimeType || '').includes('pdf')\n    || ($json.mimeType || '').includes('msword')\n    || ($json.mimeType || '').includes('officedocument')\n    || ($json.mimeType || '').startsWith('image/'))\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4000,
+        -672
+      ],
+      "id": "0ac5d40e-a72b-4e02-bab4-f9d1d21739e4",
+      "name": "Verifica formato de arquivo"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.From }}",
+        "subject": "Formato inválido.",
+        "emailType": "text",
+        "message": "O formato no qual o currículo foi enviado não é aceito, favor reenviar o mesmo dentro dos formatos possíveis: .PDF, .DOCX, .DOC.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -3776,
+        -496
+      ],
+      "id": "578408dd-bf11-4e66-bcc8-33980687619c",
+      "name": "Notifica formato inválido",
+      "webhookId": "4da8e124-7224-404c-8e9f-caabe6ab37a0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k92J8beLzoVf3dJc",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lê TODOS os itens de entrada (cada item é um e-mail do \"Get a message\")\n// e transforma N anexos em N itens (1 por anexo), padronizando em binary.file\nconst items = $input.all();\nconst out = [];\n\nfor (const item of items) {\n  const bin = item.binary || {};\n\n  // meta úteis do e-mail\n  const meta = {\n    messageId: item.json.id || item.json.messageId || '',\n    from: item.json.from || item.json.headers?.From || '',\n    subject: item.json.subject || item.json.snippet || '',\n    date: item.json.internalDate\n      || item.json.payload?.headers?.find?.(h => h.name === 'Date')?.value\n      || ''\n  };\n\n  // para cada anexo (attachment_0, attachment_1, ...)\n  for (const key of Object.keys(bin)) {\n    const b = bin[key];\n\n    out.push({\n      json: {\n        ...meta,\n        fileName: b.fileName || '',\n        mimeType: b.mimeType || '',\n        size: b.fileSize || 0,\n        ext: (b.fileName || '').split('.').pop().toLowerCase(),\n        attachmentKey: key    // só para debug\n      },\n      binary: { file: b }     // padroniza o binário neste campo\n    });\n  }\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4192,
+        -672
+      ],
+      "id": "a632f832-c558-44c5-bbe4-3596a0d7ad16",
+      "name": "ORGANIZA QUANTIDADE DE EMAILS1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.ext }}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2d4054c5-84ad-4c21-bd81-5a32075176dd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "54058257-f8ea-4ec0-bef5-a9663a30e9fc",
+                    "leftValue": "={{ $json.ext }}",
+                    "rightValue": "docx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DOCX"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9c2cf22e-e9b6-492f-9a0b-d12b53f73097",
+                    "leftValue": "={{ $json.ext }}",
+                    "rightValue": "png",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PNG"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3776,
+        -688
+      ],
+      "id": "44781b55-34c8-4e75-98ef-1aa0894c4cf9",
+      "name": "Identifica arquivo"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "file",
+        "name": "=Curriculo de {{ $json.from.value[0].name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN",
+          "mode": "list",
+          "cachedResultName": "Curriculos baixados",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3456,
+        -688
+      ],
+      "id": "07d396d7-af53-440a-9c13-63bdc06773c6",
+      "name": "Upload file3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3104,
+        -688
+      ],
+      "id": "6fc20747-e56e-469a-a947-d32be5afba53",
+      "name": "Download file3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-2024-07-18",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-2024-07-18"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Você é um assistente de RH especializado em triagem de currículos. Sua saída DEVE ser sempre e somente um JSON válido (sem texto extra, sem markdown).\n\nTarefas:\n1) Extrair dados do texto do currículo e preencher o JSON no formato-alvo.\n2) Se um campo não estiver claro, use \"\" (string vazia) ou [] (array vazio). Não invente dados.\n3) Normalizar telefone (somente dígitos com possível +DDI; exemplo: +5511999998888).  \n4) E-mail: validar forma simples (contém “@” e domínio com ponto). Se houver múltiplos, escolha o mais corporativo; se não for possível, o primeiro.\n5) Identificar a vaga em que o candidato deseja atuar;\n6) Anos de experiência: somar períodos profissionais identificados; se houver intervalos sobrepostos, conte apenas uma vez. Caso só haja datas parciais, estime de forma conservadora. Arredonde para 0,5 mais próximo.\n7) Skills: extrair competências técnicas e comportamentais relevantes (máx. 20).\n8) Score (0–100): \n   - Baseie-se em (a) tempo de experiência, (b) aderência de skills às palavras‑chave citadas no texto, (c) senioridade coerente, (d) clareza/consistência do currículo.\n   - Penalize ausência de contato (e‑mail/telefone), ou texto extremamente pobre.\n9) Decisão:\n   - \"recomendar\": score ≥ 75 e há pelo menos 1 meio de contato (e‑mail ou telefone).\n   - \"talvez\": 50–74.\n   - \"descartar\": < 50 ou sem qualquer contato.\n10) Resumo: 1–2 frases objetivas sobre perfil, foco e conquistas principais.\n\nFormato de saída OBRIGATÓRIO (mantenha as chaves e tipos):\n{\n  \"nome\": \"\",\n  \"email\": \"\",\n  \"telefone\": \"\",\n  \"vaga\": \"\",\n  \"anos_experiencia\": 0,\n  \"skills\": [],\n  \"score\": 0,\n  \"decisao\": \"\",\n  \"resumo\": \"\"\n}\n"
+            },
+            {
+              "content": "=A seguir está o texto integral do currículo (sem formatação). Analise e responda SOMENTE com o JSON no formato pedido:\n\n{{ $json.text }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1472,
+        -1008
+      ],
+      "id": "c418b740-4d3f-454b-a346-163a7cc95d2e",
+      "name": "ASSISTENTE RH1",
+      "credentials": {
+        "openAiApi": {
+          "id": "FuWylRAgpYX9DVAe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1_69aDRqKy5srXbjYF5eNHpXcKPfnf24NAEl2g0TnV8c",
+          "mode": "list",
+          "cachedResultName": "CANDIDATOS_ANTIGOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_69aDRqKy5srXbjYF5eNHpXcKPfnf24NAEl2g0TnV8c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_69aDRqKy5srXbjYF5eNHpXcKPfnf24NAEl2g0TnV8c/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "E-mail",
+              "lookupValue": "={{ $json.message.content.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1152,
+        -1008
+      ],
+      "id": "8806dfb6-f43f-4f51-8bd9-e98d08d14ae4",
+      "name": "Pega dados da planilha de reprovados anteriormente",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1EqrYgYGEXbqY0D3",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "88a565a5-5394-45b5-af58-2588383ea945",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "reprovado",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -944,
+        -1008
+      ],
+      "id": "ddae8240-fca2-4684-86e0-15cb767caeb0",
+      "name": "Verifica se já foi reprovado anteriormente"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d62070f4-a44e-4fbd-b6fa-2346a80efdc8",
+              "leftValue": "={{ $('ASSISTENTE RH1').item.json.message.content.decisao }}",
+              "rightValue": "aprovado",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e4a7fdbb-a781-4441-98ff-840c50cf0f6f",
+              "leftValue": "={{ $('ASSISTENTE RH1').item.json.message.content.decisao }}",
+              "rightValue": "recomendar",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        -912
+      ],
+      "id": "e6627b91-51cc-4842-8e73-494abb2af088",
+      "name": "Verifica decisão da IA"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a2ca9c10-01af-4a5b-a3e1-5957356ec9fa",
+              "name": "motivo_reprovacao",
+              "value": "reprovado anteriormente",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        -1232
+      ],
+      "id": "ea58baf9-da8d-4708-b0d1-f98da4afb5b7",
+      "name": "Set motivo reprovação"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f36b0a0c-ea0e-43fa-aaab-5894d41fdbfd",
+              "name": "motivo_reprovacao",
+              "value": "Score menor que 50",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        -816
+      ],
+      "id": "c81922fd-6c23-4da5-8a6a-c64ac8e4ab56",
+      "name": "Set motivo reprovação1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo",
+          "mode": "list",
+          "cachedResultName": "RH TRIAGEM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1678206687,
+          "mode": "list",
+          "cachedResultName": "Reprovados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit#gid=1678206687"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('ASSISTENTE RH1').item.json.message.content.nome }}",
+            "email": "={{ $('ASSISTENTE RH1').item.json.message.content.email }}",
+            "telefone": "={{ $('ASSISTENTE RH1').item.json.message.content.telefone }}",
+            "vaga": "={{ $('ASSISTENTE RH1').item.json.message.content.vaga }}",
+            "skills": "={{ $('ASSISTENTE RH1').item.json.message.content.skills }}",
+            "anos_experiencia": "={{ $('ASSISTENTE RH1').item.json.message.content.anos_experiencia }}",
+            "score": "={{ $('ASSISTENTE RH1').item.json.message.content.score }}",
+            "decisao": "={{ $('ASSISTENTE RH1').item.json.message.content.decisao }}",
+            "resumo": "={{ $('ASSISTENTE RH1').item.json.message.content.resumo }}",
+            "motivo_reprovacao": "={{ $json.motivo_reprovacao }}"
+          },
+          "matchingColumns": [
+            "nome"
+          ],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vaga",
+              "displayName": "vaga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "anos_experiencia",
+              "displayName": "anos_experiencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills",
+              "displayName": "skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "decisao",
+              "displayName": "decisao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "motivo_reprovacao",
+              "displayName": "motivo_reprovacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resumo",
+              "displayName": "resumo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -544,
+        -1232
+      ],
+      "id": "f9360c98-a050-4751-93e4-2a246d0bcbc5",
+      "name": "Adiciona reprovado na tabela",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1EqrYgYGEXbqY0D3",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo",
+          "mode": "list",
+          "cachedResultName": "RH TRIAGEM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Aprovados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('ASSISTENTE RH1').item.json.message.content.nome }}",
+            "email": "={{ $('ASSISTENTE RH1').item.json.message.content.email }}",
+            "telefone": "={{ $('ASSISTENTE RH1').item.json.message.content.telefone }}",
+            "vaga": "={{ $('ASSISTENTE RH1').item.json.message.content.vaga }}",
+            "skills": "={{ $('ASSISTENTE RH1').item.json.message.content.skills }}",
+            "anos_experiencia": "={{ $('ASSISTENTE RH1').item.json.message.content.anos_experiencia }}",
+            "score": "={{ $('ASSISTENTE RH1').item.json.message.content.score }}",
+            "decisao": "={{ $('ASSISTENTE RH1').item.json.message.content.decisao }}",
+            "resumo": "={{ $('ASSISTENTE RH1').item.json.message.content.resumo }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vaga",
+              "displayName": "vaga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "anos_experiencia",
+              "displayName": "anos_experiencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills",
+              "displayName": "skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "decisao",
+              "displayName": "decisao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resumo",
+              "displayName": "resumo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -336,
+        -1040
+      ],
+      "id": "e9639d17-cdd5-4a32-aafd-23e354728db6",
+      "name": "Adiciona aprovados na tabela",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1EqrYgYGEXbqY0D3",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo",
+          "mode": "list",
+          "cachedResultName": "RH TRIAGEM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1678206687,
+          "mode": "list",
+          "cachedResultName": "Reprovados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gUUme9rj6jbSbzdQKTNerYLi2wOBNF9lRACn8ufjCTo/edit#gid=1678206687"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('ASSISTENTE RH1').item.json.message.content.nome }}",
+            "email": "={{ $('ASSISTENTE RH1').item.json.message.content.email }}",
+            "telefone": "={{ $('ASSISTENTE RH1').item.json.message.content.telefone }}",
+            "vaga": "={{ $('ASSISTENTE RH1').item.json.message.content.vaga }}",
+            "skills": "={{ $('ASSISTENTE RH1').item.json.message.content.skills }}",
+            "anos_experiencia": "={{ $('ASSISTENTE RH1').item.json.message.content.anos_experiencia }}",
+            "score": "={{ $('ASSISTENTE RH1').item.json.message.content.score }}",
+            "decisao": "={{ $('ASSISTENTE RH1').item.json.message.content.decisao }}",
+            "resumo": "={{ $('ASSISTENTE RH1').item.json.message.content.resumo }}",
+            "motivo_reprovacao": "={{ $json.motivo_reprovacao }}"
+          },
+          "matchingColumns": [
+            "nome"
+          ],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "vaga",
+              "displayName": "vaga",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "anos_experiencia",
+              "displayName": "anos_experiencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills",
+              "displayName": "skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "decisao",
+              "displayName": "decisao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "motivo_reprovacao",
+              "displayName": "motivo_reprovacao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resumo",
+              "displayName": "resumo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -336,
+        -800
+      ],
+      "id": "c3c44d77-55d7-42e1-8c6d-7547147fb1b8",
+      "name": "Adiciona reprovado na tabela1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1EqrYgYGEXbqY0D3",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/copy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mimeType",
+              "value": "application/vnd.google-apps.document"
+            },
+            {
+              "name": "name",
+              "value": "=Convertido - {{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3280,
+        -688
+      ],
+      "id": "753a95c7-7a2b-40fd-838a-129abe3fbbf5",
+      "name": "DOCX -> DRIVE",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "file",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN",
+          "mode": "list",
+          "cachedResultName": "Curriculos baixados",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3456,
+        -496
+      ],
+      "id": "55987aad-6df9-491e-acac-09db8f07fdd0",
+      "name": "Upload file4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/copy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mimeType",
+              "value": "application/vnd.google-apps.document"
+            },
+            {
+              "name": "name",
+              "value": "=Convertido - {{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3280,
+        -496
+      ],
+      "id": "b844d428-af26-43ce-9a48-ae902b33919b",
+      "name": "HTTP Request3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3104,
+        -496
+      ],
+      "id": "f29e1468-b52c-48f8-af81-0df479bc1e12",
+      "name": "Download file4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "file",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN",
+          "mode": "list",
+          "cachedResultName": "Curriculos baixados",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1pZLBOOuL9iKS0oiHQ5sXRI9nD9uHsGZN"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3456,
+        -304
+      ],
+      "id": "35de3051-8df8-4776-b22c-528d502c02c2",
+      "name": "Upload file5",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "uploadType",
+              "value": "multipart"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "ocr_imagem"
+            },
+            {
+              "name": "mimeType",
+              "value": "application/vnd.google-apps.document"
+            },
+            {
+              "name": "ocrLanguage",
+              "value": "pt-BR"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3280,
+        -304
+      ],
+      "id": "c3394180-f102-4497-9976-07e5fbb793f0",
+      "name": "HTTP Request4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf",
+              "drawingsToFormat": "application/pdf",
+              "slidesToFormat": "application/pdf",
+              "sheetsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -3104,
+        -304
+      ],
+      "id": "212c55e2-3202-49f9-9112-2b2f80f37a9d",
+      "name": "Download file5",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "X6qYvk1m0rQeGRpa",
+          "name": "NOVO - RH IMIC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "cargos",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "aberta"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2848,
+        -1168
+      ],
+      "id": "fb6d3c8b-2f65-42e0-a54b-1643347f1787",
+      "name": "Get many rows",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "HTU5Haf2ccUrepWi",
+          "name": "Supabase RH"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2544,
+        -1024
+      ],
+      "id": "3348e6b9-7d42-4ad8-a7ac-c828ab20ca46",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -2848,
+        -1008
+      ],
+      "id": "7604f43e-6c8f-40be-95bd-73b013a35d65",
+      "name": "EXTRACT PDF"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Você é um assistente de RH especializado em triagem de currículos. Sua saída DEVE ser sempre e somente um JSON válido (sem texto extra, sem markdown).\n\n"
+            },
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2304,
+        -1024
+      ],
+      "id": "874000e1-ee2a-438c-88c2-ed05e38daacc",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "FuWylRAgpYX9DVAe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Configurar\n",
+        "height": 384,
+        "width": 512
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3488,
+        -528
+      ],
+      "id": "95b0c9c0-7a86-46dd-84bd-ff5e8a3d1841",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Pega todos os e-mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega todos os e-mails": {
+      "main": [
+        [
+          {
+            "node": "Verifica se o e-mail tem arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica se o e-mail tem arquivo": {
+      "main": [
+        [
+          {
+            "node": "Separa e-mails individualmente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifica por falta de arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separa e-mails individualmente": {
+      "main": [
+        [
+          {
+            "node": "ORGANIZA QUANTIDADE DE EMAILS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica formato de arquivo": {
+      "main": [
+        [
+          {
+            "node": "Identifica arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifica formato inválido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ORGANIZA QUANTIDADE DE EMAILS1": {
+      "main": [
+        [
+          {
+            "node": "Verifica formato de arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file3": {
+      "main": [
+        [
+          {
+            "node": "DOCX -> DRIVE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file3": {
+      "main": [
+        [
+          {
+            "node": "EXTRACT PDF",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identifica arquivo": {
+      "main": [
+        [
+          {
+            "node": "EXTRACT PDF",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload file3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "ASSISTENTE RH1": {
+      "main": [
+        [
+          {
+            "node": "Pega dados da planilha de reprovados anteriormente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega dados da planilha de reprovados anteriormente": {
+      "main": [
+        [
+          {
+            "node": "Verifica se já foi reprovado anteriormente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica se já foi reprovado anteriormente": {
+      "main": [
+        [
+          {
+            "node": "Set motivo reprovação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verifica decisão da IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica decisão da IA": {
+      "main": [
+        [
+          {
+            "node": "Adiciona aprovados na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set motivo reprovação1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set motivo reprovação": {
+      "main": [
+        [
+          {
+            "node": "Adiciona reprovado na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set motivo reprovação1": {
+      "main": [
+        [
+          {
+            "node": "Adiciona reprovado na tabela1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DOCX -> DRIVE": {
+      "main": [
+        [
+          {
+            "node": "Download file3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Download file4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file4": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "EXTRACT PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Download file5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file5": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "EXTRACT PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "EXTRACT PDF": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "75c1f876-be29-4c61-9d68-08e28dcaa269",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdf54896ddd4a317382847563e3df43e6ba9ae2db71da5c0e16ea78b9ab4550b"
+  },
+  "id": "Bq9E7GvDB7FsacWQ",
+  "tags": []
+}
