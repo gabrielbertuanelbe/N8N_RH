@@ -1798,6 +1798,7 @@
       "main": [
         [
           {
+
             "node": "ASSISTENTE RH1",
             "type": "main",
             "index": 0
@@ -1810,7 +1811,6 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "4d661ab3-9360-4966-9320-c4188542cd4d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "cdf54896ddd4a317382847563e3df43e6ba9ae2db71da5c0e16ea78b9ab4550b"
